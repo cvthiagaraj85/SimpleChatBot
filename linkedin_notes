@@ -1,0 +1,59 @@
+<?php
+// LinkedIn API endpoint
+$endpoint = "https://api.linkedin.com/v2/ugcPosts";
+
+// Access token (replace this with your actual access token)
+$accessToken = "YOUR_ACCESS_TOKEN";
+
+// Post content
+$postData = [
+    "author" => "urn:li:person:YOUR_PERSON_URN", // Replace with your LinkedIn person URN
+    "lifecycleState" => "PUBLISHED",
+    "specificContent" => [
+        "com.linkedin.ugc.ShareContent" => [
+            "shareCommentary" => [
+                "text" => "Hello, LinkedIn! This is a test post created using the LinkedIn API and PHP."
+            ],
+            "shareMediaCategory" => "NONE"
+        ]
+    ],
+    "visibility" => [
+        "com.linkedin.ugc.MemberNetworkVisibility" => "PUBLIC"
+    ]
+];
+
+// Convert post data to JSON
+$jsonData = json_encode($postData);
+
+// Initialize cURL
+$ch = curl_init();
+
+curl_setopt($ch, CURLOPT_URL, $endpoint);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    "Authorization: Bearer $accessToken",
+    "Content-Type: application/json",
+    "x-li-format: json"
+]);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+
+// Execute cURL request
+$response = curl_exec($ch);
+
+// Check for errors
+if (curl_errno($ch)) {
+    echo 'cURL error: ' . curl_error($ch);
+} else {
+    // Display LinkedIn API response
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    if ($httpCode == 201) {
+        echo "Post created successfully!";
+    } else {
+        echo "Failed to create post. Response: " . $response;
+    }
+}
+
+// Close cURL
+curl_close($ch);
+?>
